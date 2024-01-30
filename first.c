@@ -112,6 +112,40 @@ void process_files_with_thread(ProcessData* data,  int* checked_files, int* matc
     }
 }
 
+// Recursive function to traverse directories
+void traverse_directory(const char* path, ProcessData* data, int* checked_files, int* matched_files) {
+    DIR* dir = opendir(path);
+    struct dirent* entry;
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type == DT_REG) {
+
+            // Regular file - add to the list
+            char file_path[256];
+            snprintf(file_path, sizeof(file_path), "%s/%s", path, entry->d_name);
+            data->files[data->file_count++] = strdup(file_path);
+
+        } else if (entry->d_type == DT_DIR && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+
+            // Directory - process recursively
+            char subdir_path[256];
+            snprintf(subdir_path, sizeof(subdir_path), "%s/%s", path, entry->d_name);
+            pid_t child_pid = fork();
+
+            if (child_pid == 0) {  // Child process
+                traverse_directory(subdir_path, data, checked_files, matched_files);
+                process_files_with_thread(data, checked_files, matched_files);
+                exit(0);  // Child process exits after processing
+            } else if (child_pid < 0) {
+                perror("Fork failed");
+            }
+        }
+    }
+
+    closedir(dir);
+}
+
+
 int main() {
     const char* root_directory = "/Users/amin/Documents/دانشگاه/۵.سیستم عامل/grep/testfiles";
     const char* search_pattern = "hello";  // Replace with your desired pattern
