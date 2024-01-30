@@ -1,3 +1,8 @@
+/*
+Mahdi Aghli 4001262591
+Mohammad Amin Hatefi 4001262615
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
