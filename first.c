@@ -1,3 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <dirent.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+
+#define MAX_FILES 100
+#define MAX_LINE_LENGTH 256
+//
+// Structure to hold file information and search pattern
+typedef struct {
+    char* files[MAX_FILES];
+    int file_count;
+    char* pattern;
+    pthread_mutex_t mutex;
+    sem_t sem;
+} ProcessData;
+
+typedef  struct {
+    int* matchedFile;
+    ProcessData* data;
+    int i;
+    FILE* file;
+} ThreadResult;
+
 
 int main() {
     const char* root_directory = "/Users/amin/Documents/دانشگاه/۵.سیستم عامل/grep/testfiles";
