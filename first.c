@@ -34,6 +34,28 @@ typedef  struct {
     FILE* file;
 } ThreadResult;
 
+//ProcessData* data, FILE* file, int* matched_files, const int* i
+void *process_file(ThreadResult *args) {
+
+    char line[MAX_LINE_LENGTH];
+    int line_number = 0;
+
+    while (fgets(line, sizeof(line), args->file) != NULL) {
+        line_number++;
+
+        // Check if the line contains the specified pattern
+        if (strstr(line, args->data->pattern) != NULL) {
+            // Use lock for synchronized printing
+            pthread_mutex_lock(&args->data->mutex);
+            sem_wait(&args->data->sem);
+            printf("%s:%d: %s\n", args->data->files[args->i], line_number, line);
+            (*args->matchedFile)++;
+            sem_post(&args->data->sem);
+            pthread_mutex_unlock(&args->data->mutex);
+        }
+    }
+    fclose(args->file);
+}
 
 int main() {
     const char* root_directory = "/Users/amin/Documents/دانشگاه/۵.سیستم عامل/grep/testfiles";
