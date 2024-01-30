@@ -57,6 +57,61 @@ void *process_file(ThreadResult *args) {
     fclose(args->file);
 }
 
+// Function to process files (lines containing the specified pattern)
+void process_files_with_thread(ProcessData* data,  int* checked_files, int* matched_files) {
+    pthread_t process_file_thread[data->file_count];
+    ThreadResult thread_results[data->file_count];
+
+    for (int i = 0; i < data->file_count; ++i) {
+        FILE* file = fopen(data->files[i], "r");
+        if (file == NULL) {
+            perror("Error opening file");
+            continue;
+        }
+
+        (*checked_files)++;
+
+        thread_results[i].i = i;
+        thread_results[i].matchedFile = matched_files;
+        thread_results[i].data = data;
+        thread_results[i].file = file;
+
+        pthread_create(&process_file_thread[i], NULL, process_file, &thread_results[i]);
+    }
+    for (int i = 0; i < data->file_count; ++i) {
+        pthread_join(process_file_thread[i], NULL);
+    }
+
+
+}
+
+
+// Function to process files (lines containing the specified pattern)
+void process_files_with_thread(ProcessData* data,  int* checked_files, int* matched_files) {
+    pthread_t process_file_thread[data->file_count];
+    ThreadResult thread_results[data->file_count];
+
+    for (int i = 0; i < data->file_count; ++i) {
+        FILE* file = fopen(data->files[i], "r");
+        if (file == NULL) {
+            perror("Error opening file");
+            continue;
+        }
+
+        (*checked_files)++;
+
+        thread_results[i].i = i;
+        thread_results[i].matchedFile = matched_files;
+        thread_results[i].data = data;
+        thread_results[i].file = file;
+
+        pthread_create(&process_file_thread[i], NULL, process_file, &thread_results[i]);
+    }
+    for (int i = 0; i < data->file_count; ++i) {
+        pthread_join(process_file_thread[i], NULL);
+    }
+}
+
 int main() {
     const char* root_directory = "/Users/amin/Documents/دانشگاه/۵.سیستم عامل/grep/testfiles";
     const char* search_pattern = "hello";  // Replace with your desired pattern
